@@ -35,7 +35,7 @@ void task1() {
     return;
 }
 
-void encryption(char S[8][9], unsigned short Rez[8][9])
+void encryption(char S[8][9], unsigned short Rez[8][8])
 {
     unsigned char c;
     unsigned short r, t, b;
@@ -85,7 +85,7 @@ void task2()
     15 біт - біт парності попереднього поля (1 біт). */
     cout << " Data encryption using bitwise operations  \n";
     char S[8][9];
-    unsigned short Rez[8][9];
+    unsigned short Rez[8][8];
     unsigned short f;
     cout << " Input string from file press 1 <Enter>\n ";
     cin >> f;
@@ -121,7 +121,7 @@ void task2()
         }
     }
     encryption(S, Rez);
-    ofstream ofs("out.txt");
+    ofstream ofs("out1.txt");
     if (ofs) {
         for (int i = 0; i < 8; i++, ofs << endl) for (int j = 0; j < 8; j++) ofs << Rez[i][j] << ' ';
         ofs.close();
@@ -132,20 +132,121 @@ void task2()
     }
     cin.get();
 }
+struct Enc
+{
+    unsigned short r : 16;
+    unsigned short numOfLine : 3;
+    unsigned short letterCode : 8;
+    unsigned short parityBit1 : 1;
+    unsigned short symbolPosition : 3;
+    unsigned short parityBit2 : 1;
+};
+
+Enc encryptionStruct(char S[8][9], Enc Rez[8][8])
+{
+    unsigned short t, b;
+    for (int i = 0; i < 8; i++, cout << endl)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            Rez[i][j].numOfLine = i;
+            Rez[i][j].letterCode = S[i][j];
+            Rez[i][j].r = (0 | Rez[i][j].numOfLine << 13) | Rez[i][j].letterCode << 5;
+            
+            t = 32;
+            b = 0;
+            for (int k = 0; k < 11; k++)
+            {
+                if (Rez[i][j].r & t) if (b == 0) b = 1; else b = 0;
+                t <<= 1;
+            }
+            Rez[i][j].parityBit1 = b;
+            Rez[i][j].r |= Rez[i][j].parityBit1 << 4;
+            Rez[i][j].symbolPosition = j;
+            Rez[i][j].r |= Rez[i][j].symbolPosition << 1;
+            t = 2;
+            b = 0;
+            for (int k = 0; k < 3; k++)
+            {
+                if (Rez[i][j].r & t) if (b == 0) b = 1; else b = 0;
+                t <<= 1;
+            }
+            Rez[i][j].parityBit2 = b;
+            Rez[i][j].r |= b;
+            cout << Rez[i][j].r << ' ';
+        }
+        
+    }
+    return Rez[8][8];
+}
 
 void task3()
 {
     // Шифрування даних з використання стуктур з бітовими полями 
     // Data encryption using structures with bit fields
     cout << "  Data encryption using structures with bit fields \n";
+    setlocale(LC_CTYPE, "ukr");
+    /*4. Задано 8 рядків тексту. У рядку до 8 символів. Доповнити пробілами рядки до 8 символів.
+    Шифрувати тексти таким чином, щоб кожний символ тексту записувався у два байти. Два байти
+    мають таку структуру:
+    у бітах 0-2 знаходиться номер рядка символу (3 біти),
+    у бітах 3-10 ASCII - код букви (8 біт),
+    11 біт – біт парності перших двох полів (1 біт)
+    у бітах 12-14 позиція символу в рядку (3 біти),
+    15 біт - біт парності попереднього поля (1 біт). */
+    char S[8][9];
+    Enc Rez[8][8];
+    unsigned short f;
+    cout << " Input string from file press 1 <Enter>\n ";
+    cin >> f;
+    if (f) {
+        ifstream ifs("in.txt");
+        if (ifs) {
+            for (int i = 0; i < 8; i++)
+            {
+                ifs >> S[i];
+                int m = strlen(S[i]);
+                for (int j = 7; j > m - 1; j--)
+                    S[i][j] = ' ';
+                S[i][8] = 0;
+            }
+            ifs.close();
+        }
+        else {
+            cout << "File in.txt not open" << endl;
+            return;
+        }
+    }
+    else
+    {
+        cin.get();
+        cout << " Input string (size <=64) \n";
+        for (int i = 0; i < 8; i++)
+        {
+            cin >> S[i];
+            int m = strlen(S[i]);
+            for (int j = 7; j > m - 1; j--)
+                S[i][j] = ' ';
+            S[i][8] = 0;
+        }
+    }
+    encryptionStruct(S, Rez);
+    ofstream ofs("out2.txt");
+    if (ofs) {
+        for (int i = 0; i < 8; i++, ofs << endl) for (int j = 0; j < 8; j++) ofs << Rez[i][j].r << ' ';
+        ofs.close();
+    }
+    else {
+        cout << "File out.txt not open" << endl;
+        return;
+    }
+    cin.get();
 }
-
 
 void task4()
 {   // Задача із використання побітових операцій
     // The problem of using bitwise operations
     cout << " Data encryption using structures with bit fields \n";
-
 }
 
 
