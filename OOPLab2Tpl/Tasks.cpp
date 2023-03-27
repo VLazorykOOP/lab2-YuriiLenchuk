@@ -2,6 +2,8 @@
 #include <clocale>
 #include <fstream>
 #include <bitset>
+#include <string>
+using std::string;
 using std::cin;
 using std::cout;
 using std::endl;
@@ -145,14 +147,13 @@ struct Enc
 Enc encryptionStruct(char S[8][9], Enc Rez[8][8])
 {
     unsigned short t, b;
-    for (int i = 0; i < 8; i++, cout << endl)
+    for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 8; j++)
         {
             Rez[i][j].numOfLine = i;
             Rez[i][j].letterCode = S[i][j];
             Rez[i][j].r = (0 | Rez[i][j].numOfLine << 13) | Rez[i][j].letterCode << 5;
-            
             t = 32;
             b = 0;
             for (int k = 0; k < 11; k++)
@@ -173,7 +174,6 @@ Enc encryptionStruct(char S[8][9], Enc Rez[8][8])
             }
             Rez[i][j].parityBit2 = b;
             Rez[i][j].r |= b;
-            cout << Rez[i][j].r << ' ';
         }
         
     }
@@ -243,10 +243,60 @@ void task3()
     cin.get();
 }
 
+void encryptiont4(string S, unsigned short* Rez)
+{
+    int i = 0;
+    for (char c : S)
+    {
+        unsigned short bits = c;
+        bits = (((((bits >> 2) & 1) << 3) | (((bits >> 3) & 1) << 2)) | (((bits >> 4) & 15) << 4) | (bits & 3));
+        Rez[i] = bits;
+        cout << i << ' ' << bitset<8>(Rez[i]) << endl;
+        i++;
+    }
+    return;
+}
+
 void task4()
 {   // Задача із використання побітових операцій
     // The problem of using bitwise operations
     cout << " Data encryption using structures with bit fields \n";
+    /*4. Зашифрувати текст, помінявши у бітовому представленні кожної букви 5-й та 6-й біти.*/
+    setlocale(LC_CTYPE, "ukr");
+    string S;
+    char f[50];
+    cout << " Input string from file(enter fife name) or press 1 if you want type it\n ";
+    cin >> f;
+    if (f[0] != '1') {
+        ifstream ifs(f);
+        if (ifs) {
+            getline(ifs, S);
+            ifs.close();
+        }
+        else {
+            cout << "File in.txt not open" << endl;
+            return;
+        }
+    }
+    else
+    {
+        cin.get();
+        cout << " Input string (size <=64) \n";
+        getline(cin, S);
+    }
+    unsigned short *Rez = new unsigned short[S.length()];
+    encryptiont4(S, Rez);
+    ofstream ofs("out3.txt");
+    if (ofs) {
+        for (int i = 0; i < S.length(); i++) ofs << *(Rez + i) << endl;
+        ofs.close();
+    }
+    else {
+        cout << "File out.txt not open" << endl;
+        return;
+    }
+    cin.get();
+    delete Rez;
 }
 
 
