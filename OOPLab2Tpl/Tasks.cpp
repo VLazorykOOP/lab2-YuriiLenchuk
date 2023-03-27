@@ -296,7 +296,7 @@ void task4()
         return;
     }
     cin.get();
-    delete Rez;
+    delete[] Rez;
 }
 
 
